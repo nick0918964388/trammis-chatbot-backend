@@ -73,3 +73,8 @@ async def append_message_to_chat_history(
         return None
     
     return await get_chat_history(chat_id)
+
+
+async def delete_chat_history(chat_id: str) -> bool:
+    result = await collection.delete_one({"_id": ObjectId(chat_id)})
+    return result.deleted_count > 0
