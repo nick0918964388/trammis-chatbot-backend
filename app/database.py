@@ -34,8 +34,7 @@ async def update_chat_history(chat_id: str, chat_history: ChatHistoryUpdate) -> 
     )
     if result.modified_count == 0:
         return None
-    updated_chat_history = await collection.find_one({"_id": ObjectId(chat_id)})
-    return ChatHistory(**updated_chat_history)
+    return await get_chat_history(chat_id)
 
 async def append_message_to_chat_history(chat_id: str, message: MessageAppend) -> ChatHistory:
     new_message = message.dict()
@@ -49,5 +48,4 @@ async def append_message_to_chat_history(chat_id: str, message: MessageAppend) -
     if result.modified_count == 0:
         return None
     
-    updated_chat_history = await collection.find_one({"_id": ObjectId(chat_id)})
-    return ChatHistory(**updated_chat_history)
+    return await get_chat_history(chat_id)
