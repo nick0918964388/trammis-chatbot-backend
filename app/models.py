@@ -1,17 +1,20 @@
 from pydantic import BaseModel, Field
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
+
+def get_gmt_time():
+    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
 class Message(BaseModel):
     id: str
     content: str
     sender: str
     image: Optional[str] = None
-    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+    timestamp: str = Field(default_factory=get_gmt_time)
 
 class ChatHistoryBase(BaseModel):
     title: str
-    date: str = Field(default_factory=lambda: datetime.now().isoformat())
+    date: str = Field(default_factory=get_gmt_time)
     messages: List[Message]
 
 class ChatHistoryCreate(ChatHistoryBase):
