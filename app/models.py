@@ -21,3 +21,7 @@ class ChatHistory(ChatHistoryBase):
 
     class Config:
         orm_mode = True
+
+class ChatHistoryUpdate(BaseModel):
+    title: Optional[str] = None
+    messages: Optional[List[Message]] = None

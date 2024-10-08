@@ -1,5 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-from .models import ChatHistory, ChatHistoryCreate
+from .models import ChatHistory, ChatHistoryCreate, ChatHistoryUpdate
 from bson import ObjectId
 
 client = AsyncIOMotorClient("mongodb://mongodb:27017")
@@ -24,3 +24,14 @@ async def get_all_chat_histories():
         chat["id"] = str(chat["_id"])
         chats.append(ChatHistory(**chat))
     return chats
+
+async def update_chat_history(chat_id: str, chat_history: ChatHistoryUpdate) -> ChatHistory:
+    update_data = chat_history.dict(exclude_unset=True)
+    result = await db.chat_histories.update_one(
+        {"_id": ObjectId(chat_id)},
+        {"$set": update_data}
+    )
+    if result.modified_count == 0:
+        return None
+    updated_chat_history = await db.chat_histories.find_one({"_id": ObjectId(chat_id)})
+    return ChatHistory(**updated_chat_history)
