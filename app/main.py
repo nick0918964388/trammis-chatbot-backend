@@ -28,9 +28,6 @@ async def read_chat_history(chat_id: str):
         return result
     raise HTTPException(status_code=404, detail="Chat history not found")
 
-@app.get("/api/chat-histories", response_model=List[ChatHistory])
-async def read_all_chat_histories():
-    return await get_all_chat_historie
 
 @app.get("/api/chat-history", response_model=List[ChatHistory])
 async def read_chat_histories():
