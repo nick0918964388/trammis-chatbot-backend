@@ -25,3 +25,11 @@ class ChatHistory(ChatHistoryBase):
 class ChatHistoryUpdate(BaseModel):
     title: Optional[str] = None
     messages: Optional[List[Message]] = None
+
+class MessageAppend(BaseModel):
+    content: str
+    sender: str
+    image: Optional[str] = None
+
+class ChatHistoryAppend(BaseModel):
+    message: MessageAppend

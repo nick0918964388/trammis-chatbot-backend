@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
-from .models import ChatHistory, ChatHistoryCreate, ChatHistoryUpdate
+from .models import ChatHistory, ChatHistoryCreate, ChatHistoryUpdate, MessageAppend
 from bson import ObjectId
+import uuid
 
 client = AsyncIOMotorClient("mongodb://mongodb:27017")
 database = client.chatbot_db
@@ -27,11 +28,26 @@ async def get_all_chat_histories():
 
 async def update_chat_history(chat_id: str, chat_history: ChatHistoryUpdate) -> ChatHistory:
     update_data = chat_history.dict(exclude_unset=True)
-    result = await db.chat_histories.update_one(
+    result = await collection.update_one(
         {"_id": ObjectId(chat_id)},
         {"$set": update_data}
     )
     if result.modified_count == 0:
         return None
-    updated_chat_history = await db.chat_histories.find_one({"_id": ObjectId(chat_id)})
+    updated_chat_history = await collection.find_one({"_id": ObjectId(chat_id)})
+    return ChatHistory(**updated_chat_history)
+
+async def append_message_to_chat_history(chat_id: str, message: MessageAppend) -> ChatHistory:
+    new_message = message.dict()
+    new_message["id"] = str(uuid.uuid4())  # 为新消息生成一个唯一ID
+    
+    result = await collection.update_one(
+        {"_id": ObjectId(chat_id)},
+        {"$push": {"messages": new_message}}
+    )
+    
+    if result.modified_count == 0:
+        return None
+    
+    updated_chat_history = await collection.find_one({"_id": ObjectId(chat_id)})
     return ChatHistory(**updated_chat_history)
