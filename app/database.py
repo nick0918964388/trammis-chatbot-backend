@@ -29,6 +29,8 @@ async def get_chat_history(chat_id: str):
     chat = await collection.find_one({"_id": ObjectId(chat_id)})
     if chat:
         chat["id"] = str(chat["_id"])
+        if "user_id" not in chat:
+            chat["user_id"] = "unknown"  # 为旧数据添加默认user_id
         return ChatHistory(**chat)
 
 
@@ -37,6 +39,8 @@ async def get_all_chat_histories():
     chats = []
     async for chat in cursor:
         chat["id"] = str(chat["_id"])
+        if "user_id" not in chat:
+            chat["user_id"] = "unknown"  # 为旧数据添加默认user_id
         chats.append(ChatHistory(**chat))
     return chats
 
