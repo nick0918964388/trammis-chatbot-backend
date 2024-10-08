@@ -7,6 +7,7 @@ class Message(BaseModel):
     content: str
     sender: str
     image: Optional[str] = None
+    timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
 
 class ChatHistoryBase(BaseModel):
     title: str

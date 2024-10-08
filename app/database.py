@@ -2,6 +2,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from .models import ChatHistory, ChatHistoryCreate, ChatHistoryUpdate, MessageAppend
 from bson import ObjectId
 import uuid
+from datetime import datetime
 
 client = AsyncIOMotorClient("mongodb://mongodb:27017")
 database = client.chatbot_db
@@ -9,6 +10,9 @@ collection = database.chat_histories
 
 async def create_chat_history(chat_history: ChatHistoryCreate):
     document = chat_history.dict()
+    document['date'] = datetime.now().isoformat()
+    for message in document['messages']:
+        message['timestamp'] = datetime.now().isoformat()
     result = await collection.insert_one(document)
     return await get_chat_history(str(result.inserted_id))
 
@@ -28,6 +32,10 @@ async def get_all_chat_histories():
 
 async def update_chat_history(chat_id: str, chat_history: ChatHistoryUpdate) -> ChatHistory:
     update_data = chat_history.dict(exclude_unset=True)
+    if 'messages' in update_data:
+        for message in update_data['messages']:
+            if 'timestamp' not in message:
+                message['timestamp'] = datetime.now().isoformat()
     result = await collection.update_one(
         {"_id": ObjectId(chat_id)},
         {"$set": update_data}
@@ -38,7 +46,8 @@ async def update_chat_history(chat_id: str, chat_history: ChatHistoryUpdate) -> 
 
 async def append_message_to_chat_history(chat_id: str, message: MessageAppend) -> ChatHistory:
     new_message = message.dict()
-    new_message["id"] = str(uuid.uuid4())  # 为新消息生成一个唯一ID
+    new_message["id"] = str(uuid.uuid4())
+    new_message["timestamp"] = datetime.now().isoformat()
     
     result = await collection.update_one(
         {"_id": ObjectId(chat_id)},
