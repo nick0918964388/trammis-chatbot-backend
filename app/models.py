@@ -16,6 +16,7 @@ class ChatHistoryBase(BaseModel):
     title: str
     date: str = Field(default_factory=get_gmt_time)
     messages: List[Message]
+    user_id: str  # 新增字段，用于记录用户ID
 
 class ChatHistoryCreate(ChatHistoryBase):
     pass
@@ -37,3 +38,7 @@ class MessageAppend(BaseModel):
 
 class ChatHistoryAppend(BaseModel):
     message: MessageAppend
+
+class UserChatHistories(BaseModel):
+    user_id: str
+    chat_histories: List[ChatHistory]

@@ -4,7 +4,8 @@ from .models import (
     ChatHistoryCreate,
     ChatHistoryUpdate,
     MessageAppend,
-    get_gmt_time
+    get_gmt_time,
+    UserChatHistories
 )
 from bson import ObjectId
 import uuid
@@ -78,3 +79,12 @@ async def append_message_to_chat_history(
 async def delete_chat_history(chat_id: str) -> bool:
     result = await collection.delete_one({"_id": ObjectId(chat_id)})
     return result.deleted_count > 0
+
+
+async def get_user_chat_histories(user_id: str) -> UserChatHistories:
+    cursor = collection.find({"user_id": user_id})
+    chat_histories = []
+    async for chat in cursor:
+        chat["id"] = str(chat["_id"])
+        chat_histories.append(ChatHistory(**chat))
+    return UserChatHistories(user_id=user_id, chat_histories=chat_histories)

@@ -1,13 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from .models import ChatHistory, ChatHistoryCreate, ChatHistoryUpdate, ChatHistoryAppend
+from .models import ChatHistory, ChatHistoryCreate, ChatHistoryAppend, UserChatHistories
 from .database import (
     create_chat_history,
     get_chat_history,
     get_all_chat_histories,
-    update_chat_history,
     append_message_to_chat_history,
-    delete_chat_history
+    delete_chat_history,
+    get_user_chat_histories
 )
 from typing import List
 
@@ -31,7 +31,7 @@ async def save_chat_history(chat_history: ChatHistoryCreate):
     """
     创建新的聊天历史记录。
 
-    - **chat_history**: 要创建的聊天历史记录的详细信息
+    - **chat_history**: 要创建的聊天历史记录的详细信息，包括用户ID
     
     返回创建的聊天历史记录。
     """
@@ -72,3 +72,17 @@ async def remove_chat_history(chat_id: str):
     if result:
         return {"message": "聊天历史记录已成功删除"}
     raise HTTPException(status_code=404, detail="未找到指定的聊天历史记录")
+
+@app.get("/api/user/{user_id}/chat-histories", response_model=UserChatHistories)
+async def read_user_chat_histories(user_id: str):
+    """
+    获取指定用户的所有聊天历史记录。
+
+    - **user_id**: 用户ID
+
+    返回用户的所有聊天历史记录。
+    """
+    result = await get_user_chat_histories(user_id)
+    if result.chat_histories:
+        return result
+    raise HTTPException(status_code=404, detail="未找到该用户的聊天历史记录")
