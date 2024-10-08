@@ -1,12 +1,12 @@
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 class Message(BaseModel):
     id: str
     content: str
     sender: str
-    image: str | None = None
+    image: Optional[str] = None
 
 class ChatHistoryBase(BaseModel):
     title: str
